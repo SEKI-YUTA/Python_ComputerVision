@@ -6,10 +6,13 @@ class HandDetector:
     def __init__(self, mode=False, maxHands=2, modelComplexoty=1, detectionCon=0.5, trackingCon=0.5):
         self.mode = mode
         self.maxHands = maxHands
+        self.modelComplexoty = modelComplexoty
         self.detectionCon = detectionCon
-        self.trackingConf = trackingCon
+        self.trackingCon = trackingCon
         self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands()
+        self.hands = self.mpHands.Hands(static_image_mode=self.mode, max_num_hands=self.maxHands,
+                                        model_complexity=self.modelComplexoty, min_detection_confidence=self.detectionCon,
+                                        min_tracking_confidence=self.trackingCon)
         self.mpDraw = mp.solutions.drawing_utils
 
         # static_image_mode = False,
@@ -37,7 +40,7 @@ class HandDetector:
                 # print(id, lm)
                 h,w,c = img.shape
                 cx,cy = int(lm.x*w), int(lm.y*h)
-                print(id, cx,cy)
+                # print(id, cx,cy)
                 lmList.append([id, cx,cy])
                 if draw:
                     cv2.circle(img, (cx,cy), 10, (255, 0, 255), cv2.FILLED)
