@@ -14,6 +14,7 @@ class HandDetector:
                                         model_complexity=self.modelComplexoty, min_detection_confidence=self.detectionCon,
                                         min_tracking_confidence=self.trackingCon)
         self.mpDraw = mp.solutions.drawing_utils
+        self.tipIds = [4, 8, 12, 16, 20]
 
         # static_image_mode = False,
         # max_num_hands = 2,
@@ -33,7 +34,7 @@ class HandDetector:
         return img
 
     def findPosition(self, img, handNo=0, draw=True):
-        lmList = []
+        self.lmList = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(myHand.landmark):
@@ -41,11 +42,26 @@ class HandDetector:
                 h,w,c = img.shape
                 cx,cy = int(lm.x*w), int(lm.y*h)
                 # print(id, cx,cy)
-                lmList.append([id, cx,cy])
+                self.lmList.append([id, cx,cy])
                 if draw:
                     cv2.circle(img, (cx,cy), 10, (255, 0, 255), cv2.FILLED)
-        return lmList
+        return self.lmList
 
+    def fingersUp(self,):
+        fingers = []
+        # Thumb
+        if self.lmList[self.tipIds[0]][1] < self.lmList[self.tipIds[0] - 1][1]:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        for id in range(1, 5):
+            if self.lmList[self.tipIds[id]][2] < self.lmList[self.tipIds[id] - 2][2]:
+                fingers.append(1)
+            else:
+                fingers.append(0)
+
+        return  fingers
     # imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # results = hands.process(imgRGB)
     # if results.multi_hand_landmarks:
